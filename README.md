@@ -6,6 +6,8 @@
 
 The game is implemented and rendered using PyGame and the algorithm is implented using mostly stock python with the exception of a couple of numpy arrays.
 
+Game settings including which planner to use, grid size, game speed, are set in the bottom of the `snake.py` script.
+
   
 
 Installation is as simple as setting up your Python Virtual Environment however you prefer and running: `pip3 install -r requirements.txt`.
