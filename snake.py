@@ -1037,8 +1037,9 @@ if __name__ == '__main__':
     rate = 200
 
     subplanner = AStar(euclidean_distance_squared, grid_shape)
-    # planner = TwoStagePlanner(subplanner, grid_shape)
-    planner = AStarPlanner(subplanner)
+    planner = TwoStagePlanner(subplanner, grid_shape)
+    # planner = AStarPlanner(subplanner)
+    # planner = KBController()
 
     g = SnakeGame(grid_shape, render_size, rate, 'Snek', 24,
                   planner, render_update=True, render_pre_blank=True)
