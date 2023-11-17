@@ -14,7 +14,7 @@ Installation is as simple as setting up your Python Virtual Environment however 
 
   
 
-To run the main script: `python3 snake.py`
+To run the main script: `python3 snake.py`, optionally `python3 snake.py > /dev/null` if the STDOUT is annoying.
 
 There are no CLI arguments yet.
 
