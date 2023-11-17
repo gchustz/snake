@@ -126,18 +126,18 @@ There are many, many paths that allow for safe planning, but there is one import
 ## Node-to-Node Reachability
 *TODO: Elaborate on this section, it's okay if it's short but make sure it's supported*
 
-- Weak $N-N'-$reachable: $\exists \pi \Rightarrow N, N' \in \pi$ -- There exists a valid path from N to N'.
-- Strong $N-N'-$reachable: $\exists \pi \Rightarrow N, N' \in \pi \subseteq C^k_{free}$ -- There exists a valid path from N to N' and the entire path is within $C^k_{free}$.
+- Weak $N-N'-reachable$: $\exists \pi \Rightarrow N, N' \in \pi$ -- There exists a valid path from N to N'.
+- Strong $N-N'-reachable$: $\exists \pi \Rightarrow N, N' \in \pi \subseteq C^k_{free}$ -- There exists a valid path from N to N' and the entire path is within $C^k_{free}$.
 
-Strong $N$-$N'$-reachable implies weak $N-N'-$reachable and is easier to calculate.
+Strong $N-$N'-reachable$ implies weak $N-N'-reachable$ and is easier to calculate.
 
 Cyclic plans enforce weak $H^k-T^k-$reachability.
 ## Connectivity Constraints
 Another important consideration for optimality and safety is the connectivity of $C^k_{free}$. If $C^k_{free}$ is not fully connected, then the planning algorithm risks wasting game steps waiting for a viable path into the goal connected region of $C^k_{free}$. In this respect, it would be worth choosing a path with higher cost that guarantees that all of $C^{k+j}_{free}$ is connected after finishing the path. This constraint will be referred to as the **connectivity constraint**, and the objective of this is to reduce the overall cost of $\Pi$ and provide safety guarantees.
 
 We have two extensions of the reachability measures above:
-- Weak connectivity constraint: A set $A \subseteq C$ is weakly connected if $N_i, N_j$ is weak $N_i$-$N_j$-reachable for $i \ne j$. 
-- Strong connectivity constraint: A set $A \subseteq C$ is strongly connected if $N_i, N_j$ is strong $N_i$-$N_j$ reachable for $i \ne j$.
+- Weak connectivity constraint: A set $A \subseteq C$ is weakly connected if $N_i, N_j$ is weak $N_i-N_j-reachable$ for $i \ne j$. 
+- Strong connectivity constraint: A set $A \subseteq C$ is strongly connected if $N_i, N_j$ is strong $N_i-N_j-reachable$ for $i \ne j$.
 
 Similarly, strong connectivity constraint satisfies the weak connectivity constraint and is similarly easy to calculate. For the implementations in this paper, we will rely exclusively on the strong connectivity constraint, **referred to generally throughout this work as the connectivity constraint**. 
 
