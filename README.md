@@ -131,7 +131,7 @@ There are many, many paths that allow for safe planning, but there is one import
 
 Strong $N-N'-reachable$ implies weak $N-N'-reachable$ and is easier to calculate.
 
-Cyclic plans enforce weak $H^k-T^k-$reachability.
+Cyclic plans enforce weak $H^k-T^k-reachability$.
 ## Connectivity Constraints
 Another important consideration for optimality and safety is the connectivity of $C^k_{free}$. If $C^k_{free}$ is not fully connected, then the planning algorithm risks wasting game steps waiting for a viable path into the goal connected region of $C^k_{free}$. In this respect, it would be worth choosing a path with higher cost that guarantees that all of $C^{k+j}_{free}$ is connected after finishing the path. This constraint will be referred to as the **connectivity constraint**, and the objective of this is to reduce the overall cost of $\Pi$ and provide safety guarantees.
 
