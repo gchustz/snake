@@ -533,7 +533,7 @@ class AStarPlanner:
         if plan_valid:
             self.draw(renderer, snake+[goal])
 
-            self.current_path = path[1:]
+            self.current_path = copy.deepcopy(path)
 
             next_pos = self.current_path.pop(0)
 
@@ -989,7 +989,8 @@ class SnakeGame:
         print(self.snake_head)
         print(self.seq)
         print(time.perf_counter() - self.start_time)
-        print((time.perf_counter()-self.start_time)/self.seq)
+        if self.seq != 0:
+            print((time.perf_counter()-self.start_time)/self.seq)
         _ = input('Enter to exit')
 
     def render(self):
@@ -1036,8 +1037,8 @@ if __name__ == '__main__':
     rate = 200
 
     subplanner = AStar(euclidean_distance_squared, grid_shape)
-    planner = TwoStagePlanner(subplanner, grid_shape)
-    # planner = AStarPlanner(subplanner)
+    # planner = TwoStagePlanner(subplanner, grid_shape)
+    planner = AStarPlanner(subplanner)
 
     g = SnakeGame(grid_shape, render_size, rate, 'Snek', 24,
                   planner, render_update=True, render_pre_blank=True)
