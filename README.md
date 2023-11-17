@@ -129,7 +129,7 @@ There are many, many paths that allow for safe planning, but there is one import
 - Weak $N-N'-reachable$: $\exists \pi \Rightarrow N, N' \in \pi$ -- There exists a valid path from N to N'.
 - Strong $N-N'-reachable$: $\exists \pi \Rightarrow N, N' \in \pi \subseteq C^k_{free}$ -- There exists a valid path from N to N' and the entire path is within $C^k_{free}$.
 
-Strong $N-$N'-reachable$ implies weak $N-N'-reachable$ and is easier to calculate.
+Strong $N-N'-reachable$ implies weak $N-N'-reachable$ and is easier to calculate.
 
 Cyclic plans enforce weak $H^k-T^k-$reachability.
 ## Connectivity Constraints
