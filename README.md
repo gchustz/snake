@@ -33,16 +33,23 @@ As of 11/14, this paper is mostly a brain-dump from the ideas I have been kickin
 # Optional Enhancements
 - [ ] Implementation of the exact approaches.
 - [x] Better rendering to show motion and plans more clearly.
+
 # Abstract
 In this work, the potentially impractical and time-wasting motion planning problem of the popular Snake Game is approached in a thorough manner to give it the pedantic treatment it deserves. This planning problem is formulated rigorously, and definitions of optimality and snake safety are presented and discussed. Two exact safe and optimal solutions are described for complexity analysis. The A* discrete optimal planner is implemented to find head-to-goal paths to discuss the shortcomings of not considering future safety in this dynamic problem. A computationally efficient and safe multi-stage path planning implementation is detailed to advance the field of snake path planning and enhance the general merriment of the reader.
+
 # Introduction
 *TODO: complete section, currently just an outline*
 
 *TODO: History of the game, and thoughts other works*
+
 *TODO: add applications and related for this work, i.e. coverage planning etc.*
+
 ## Context and Related Work
+
 *TODO: talk about people using learning approaches to control the snake*
+
 Much of the inspiration of this work comes from the following two videos:
+
 - [Viral Video of snake planning algorithms](https://www.youtube.com/watch?v=tjQIO1rqTBE) **_(Caution: Explicit Language)_**
 	- This initial video by a YouTube creator, Code Bullet, reached 10M views.
 	- This video illustrates various implementations of the A* path planning algorithm and various path-rejection metrics.
@@ -85,6 +92,7 @@ In this paper:
 - Impractical but Exact planning algorithms for the problem formulation are shown: Exact Tree Search and Hamilton Cycle Planning.
 - The short comings of the static environment optimal discrete planner, A*, is shown for this problem formulation.
 - Lastly, a sub-optimal but safe and computationally efficient mixed planning implmentation is given.
+
 # Problem Formulation
 The Snake Game Problem ("problem"), is a seemingly simple but deceptively complex planning problem where the player is responsible for navigating the serpent through a two-dimensional (2D) fixed-size grid world towards the current goal.
 
@@ -109,21 +117,21 @@ An entire plan (or full valid game) is the ordered union of paths from the start
 In this planning problem, optimality of paths is narrowly focused on their length, which will be the cost measure for this work. The cost of a path is simply calculated by determined by counting the quantity of nodes in the path. An optimal path from $H^k$ to $G^k$ is a path $\pi^\star_{[k, k+j]}$ where there are no other paths between $H^k$ and $G^k$ which have lesser costs. Path $\pi^\star_{[k, k+j]}$ is not necessarily unique. It is also important to note that the minimum total game path $\Pi^\star$ is not necessarily the union of individual optimal paths, and since the goals are randomly sampled from $C^k_{free}$, $\Pi^\star$ will receive no treatment in our planning approaches, but consideration will be taken for future goals.  It should also be noted that when constructing optimal paths, the index $i$ of a node $N^k_i \in S^k$ is equivalent to the cost of a potential head node $H^{p} \in S^{p}, p\ge k+i$  to use that node for a plan $H^p = N_i^k \subset \pi_{[k, k+j]}$. In other words, the cost of a node in a plan is equivalent to the maximum index $i$ in the current snake set which it can use. *TODO: Improve the wording here*
 
 This is plain to see for the tail of the snake at index 0. If a path node adjacent to the current snake tail has cost greater than or equal to 0, the the current tail of the snake can be occupied by the head of the snake in the next turn from that node.
+
 ## Safety
 The definition of safety is a broad one, and specific targeted subsets of this definition will be used heavily in the upcoming sections. A game has a safe total game path if and only if each $H^k$ is not in the obstacle set except the head $C^{k-1}_{obs} \setminus H^k$ for all $k$ game steps in the game.
 
-There are many, many pathsIn the previous sections, it is shown that a complete game ￼￼ requires weak ￼
-￼ connectivity for all ￼￼ and that cyclic paths enforce strong ￼￼-￼￼-reachability, yet a simple implementation using A* to plan from ￼￼ to ￼￼ is not sufficient to guarantee the weak connectivity constraint of ￼
-￼. However, the optimality of the paths generated from A* is a property which would be beneficial when ￼
-￼ particularly in the early and middle game. Another useful property of A* is that it provides an infeasibility result when it cannot find it's goal from the starting node given the obstacle space. Lastly, A* is computationally fast, especially when a feasible path exists. that allow for safe planning, but there is one important subset of safe plans that are guaranteed safe which will be the cornerstone of this work, cyclic paths. Cyclic paths $\pi^\circ_{[k,k+j]}$ are paths which create a closed loop by enforcing that the path begins at a node in $Adj(H^k)$, optionally navigates the graph returning to $Adj(T^k)$, and traverses $S^k$ in order. A cyclic path can be repeated indefinitely and the $H^k$ will never enter $C^k_{obs}$. It should be noted that individually optimal paths $\pi^\star$ and cyclical paths $\pi^\circ$ are usually mutually exclusive. However, a considerable amount of the [Mixed Implementation] will use goal optimal paths that are subsets of a cyclic path back to the tail position $\pi^\star \subset \pi^\circ$. 
+There are many, many paths that allow for safe planning, but there is one important subset of safe plans that are guaranteed safe which will be the cornerstone of this work, cyclic paths. Cyclic paths $\pi^\circ_{[k,k+j]}$ are paths which create a closed loop by enforcing that the path begins at a node in $Adj(H^k)$, optionally navigates the graph returning to $Adj(T^k)$, and traverses $S^k$ in order. A cyclic path can be repeated indefinitely and the $H^k$ will never enter $C^k_{obs}$. It should be noted that individually optimal paths $\pi^\star$ and cyclical paths $\pi^\circ$ are usually mutually exclusive. However, a considerable amount of the [Mixed Implementation] will use goal optimal paths that are subsets of a cyclic path back to the tail position $\pi^\star \subset \pi^\circ$. 
+
 ## Node-to-Node Reachability
 *TODO: Elaborate on this section, it's okay if it's short but make sure it's supported*
-- Weak $N$-$N'$-reachable: $\exists \pi \Rightarrow N, N' \in \pi$ -- There exists a valid path from N to N'.
-- Strong $N$-$N'$-reachable: $\exists \pi \Rightarrow N, N' \in \pi \subseteq C^k_{free}$ -- There exists a valid path from N to N' and the entire path is within $C^k_{free}$.
 
-Strong $N$-$N'$-reachable implies weak $N$-$N'$-reachable and is easier to calculate.
+- Weak $N-N'-$reachable: $\exists \pi \Rightarrow N, N' \in \pi$ -- There exists a valid path from N to N'.
+- Strong $N-N'-$reachable: $\exists \pi \Rightarrow N, N' \in \pi \subseteq C^k_{free}$ -- There exists a valid path from N to N' and the entire path is within $C^k_{free}$.
 
-Cyclic plans enforce weak $H^k$-$T^k$-reachability.
+Strong $N$-$N'$-reachable implies weak $N-N'-$reachable and is easier to calculate.
+
+Cyclic plans enforce weak $H^k-T^k-$reachability.
 ## Connectivity Constraints
 Another important consideration for optimality and safety is the connectivity of $C^k_{free}$. If $C^k_{free}$ is not fully connected, then the planning algorithm risks wasting game steps waiting for a viable path into the goal connected region of $C^k_{free}$. In this respect, it would be worth choosing a path with higher cost that guarantees that all of $C^{k+j}_{free}$ is connected after finishing the path. This constraint will be referred to as the **connectivity constraint**, and the objective of this is to reduce the overall cost of $\Pi$ and provide safety guarantees.
 
@@ -136,14 +144,18 @@ Similarly, strong connectivity constraint satisfies the weak connectivity constr
 This leads tangentially into an interesting set of results, which is $\exists N \in Adj(T^k) \Rightarrow N \in H^k \cup C^k_{free}$. This comes naturally as as the tail increments forward with game steps, either $T^{k-1}$ is converted to a node in $C^k_{free}$ or $H^k$ and $T^{k-1}\in Adj(T^k)$.  We use this result to assert that for a valid full game path $\Pi$ requires that $C^k_{free}$ is weakly connected for all $k$. Additionally, $\exists N \in Adj(H^k) \Rightarrow N \in T^k \cup C^k_{free} \forall \Pi$, meaning that for a full valid game, the head is always able to move into the C-free or to the space the tail was previously occupied. It is clear from the above that every $\Pi$ requires that $C^k_{free}$ always satisfies the weak connectivity constraint for all $k$ and safety requires this constraint. Strong connectivity of $C^k_{free}$ at $k$ when a goal is achieved allows satisfaction of this constraint with less computation and guarantees strong $H^k$-$G^k$-reachability for all $k$. 
 # Optimal and Safe Snake Planning Implementations Under the Connectivity Constraint
 There are two optimal and safe planning formulations which do not violate the connectivity constraint that will be considered in this section, an exact tree search and a Hamilton cycle approach. Both of which will have safety guarantees and are optimal under connectivity constraint; however, the formulations described here are not practical, especially for large grid worlds. This section serves to demonstrate that the complexity of exact planning in this problem formulation is comparable to similar games such as chess.
+
 ## Exact Search
 *TODO: Update to involve more of the definitions above* so that this section can stay around this length except for figures.
+
 *TODO: Update*
+
 The exact search involves the enumeration of a directed Tree-Graph $G(V,E)$ in which every walk along the graph either ends at the goal or at a dead end. The Vertices and Edges sets are enumerated propagating forward from the starting node, the snake head $H^k$. Each edge is from a source vertex representing a path $\pi = \{H^k, N^{k+1}, ..., N\} \in E$ up to node $N=(x,y)$ and directs to a node in its adjacency set $N'=(x',y')$ such that $N' \notin \pi$  which gives us the set of Vertices set is $V=\{(\pi \rightarrow \pi \cup N')| N' \in Adj(N) \cup C_{free}^{N}\setminus \pi\}$  where $C_{free}^{N}$ is the $C_{free}$ when $N$ would be added. The graph $G$ is enumerated until the goal is reached $G^k \in Adj(N) \cup C_{free}^{N} \notin \pi$ or a dead end is encountered $Adj(N) \cup C_{free}^{N}  \setminus \pi = \emptyset$ for that branch. Once the graph is enumerated, the lengths of the paths can be counted by the number of nodes in the leaf vertices, and subsequently, all paths that meet the following criteria can be pruned in this order of priority:
 1. The path hits a dead end
 2. The path bisects $C^k_{free}$
 3. The path has a cost that is higher than the minimum after #1 and #2.
 If this approach is adopted for every planning cycle, it is clear that $C^k_{free}$ will be connected when each goal is reached, such that when a new goal is sampled randomly from $C^{k+j}_{free}$, it is guaranteed to be reachable by the snake head. Enforcing that $C^{k+j}_{free}$ is fully connected at the end of every path guarantees that Safety is maintained, and the exact tree search pruning ensures that Optimality under Connectivity Constraints is maintained.
+
 ## Hamilton Cycle Planning
 Hamilton Cycle Planning is an interesting method to solve this problem; a closed-loop path is considered which passes once through all of $C^k_{free}$ and $S^k$, in order, without violating connectivity within $S^k$. This path is defined as $\pi^{H\circ,k} = \pi^{\circ,k} \cup S^k$ such that $|\pi^{H\circ, k}| = |C^k|$. This assumes that a Hamilton Cycle is possible in the bipartite grid graph $G$. Any $\pi^{H\circ,k}$ is guaranteed safe and to complete the game, but it would be extremely uninteresting.
 
@@ -154,6 +166,7 @@ However, it is possible to convert one Hamilton Cycle in our graph $G$ to anothe
 A* is an extremely popular which is guaranteed to be optimal if the heuristic used is admissible, and is a intuitive first consideration for this problem as it involves graph search from a start and goal vertices. In fact, many of the above (*TODO: Citations*) use A* as a first attempt or as a component of their broader algorithm. However, A* does not guarantee safety and frequently causes self-entrapment and a game over state. Applying A* from $H^k$ to $G^k$ does not guarantee weak $C^k_{free}$ connectivity; however it does return $\pi^{\star,[k,k+j]}$, the optimal path from $H^k$ to $G^k$ over $j$ steps. This result will be used in the next section.
 
 *TODO: Make figure showing A\* trapping itself*
+
 # Multi-Stage Closed-Loop Planner
 In the previous sections, it is shown that a complete game $\Pi$ requires weak $C^k_{free}$ connectivity for all $k$ and that cyclic paths enforce strong $H^k$-$G^k$-reachability, yet a simple implementation using A* to plan from $H^k$ to $G^k$ is not sufficient to guarantee the weak connectivity constraint of $C^k_{free}$. However, the optimality of the paths generated from A* is a property which would be beneficial when $|C^k_{free}| \gg |S^k|$ particularly in the early and middle game. Another useful property of A* is that it provides an infeasibility result when it cannot find it's goal from the starting node given the obstacle space. Lastly, A* is computationally fast, especially when a feasible path exists.
 
@@ -165,6 +178,7 @@ This leads us neatly into the proposed implementation of this work, which has im
 *Note: #1 has been implemented and is very promising, #2 completed and also promising but needs some further iterations, 3 is yet to be implemented*
 
 *TODO: be more exact with #2*
+
 *TODO: give more clarity on favorable proposed changes*
 
 This planner construction has some clear benefits; first, it takes full advantage of A* to provide optimal safe paths and infeasibility report if it cannot in the early and middle game. As $|S^k|$ grows, it naturally transitions into a space-filling closed-loop path planning. The first stage allows the efficient and fast accumulation of score, the second stage exerts a safe but time-wasting effort to wait until the goal can be safely achieved, and the third-stage attempts to win the game in a safe fashion using Hamiltonian Cycles.
