@@ -43,21 +43,13 @@ As of 11/14, this paper is mostly a brain-dump from the ideas I have been kickin
 # General Paper To-Dos:
 
 - [ ] Fill in sections that are outlined or empty
-
 - [x] Add citations and supporting details - first pass
-
 - [ ] Check literature for any conflicting naming conventions
-
 - [ ] Spell check, grammar, and flow
-
 - [ ] Check that equations and notations are accurate and consistent.
-
 - [x] Implement the first iteration of the proposed 2-Stage planner
-
 - [ ] Finalize Abstract
-
 - [ ] Finalize Title
-
 - [ ] Replace Hamilton Cycle -> Hamiltonian Cycle
 
   
@@ -65,7 +57,6 @@ As of 11/14, this paper is mostly a brain-dump from the ideas I have been kickin
 # Optional Enhancements
 
 - [ ] Implementation of the exact approaches.
-
 - [x] Better rendering to show motion and plans more clearly.
 
   
@@ -103,48 +94,33 @@ Much of the inspiration of this work comes from the following two videos:
   
 
 - [Viral Video of snake planning algorithms](https://www.youtube.com/watch?v=tjQIO1rqTBE) **_(Caution: Explicit Language)_**
+	- This initial video by a YouTube creator, Code Bullet, reached 10M views.
+	- This video illustrates various implementations of the A* path planning algorithm and various path-rejection metrics.
+	- The planning implementation of this algorithm considers the Dynamic C-space.
+	- This implementation has two planning modes:
+		1. When the snake length is below a certain threshold, it pursues A* directly to the goal, with a path rejection criteria of that a certain proportion of the free nodes on the board must be goal-reachable.
 
-- This initial video by a YouTube creator, Code Bullet, reached 10M views.
-
-- This video illustrates various implementations of the A* path planning algorithm and various path-rejection metrics.
-
-- The planning implementation of this algorithm considers the Dynamic C-space.
-
-- First implementation has two planning modes:
-
-1. When the snake length is below a certain threshold, it pursues A* directly to the goal, with a path rejection criteria of that a certain proportion of the free nodes on the board must be goal-reachable.
-
-2. When the snake length is above or equal to the threshold, it uses the opposite of A*, which is not directly given but it is assumed that the costs and heuristics are negated or inverted. The result is the paths are as long as they can be while still obeying the path rejection metric.
+		2. When the snake length is above or equal to the threshold, it uses the opposite of A*, which is not directly given but it is assumed that the costs and heuristics are negated or inverted. The result is the paths are as long as they can be while still obeying the path rejection metric.
 
   
 
 - [Video of Hamiltonian Paths with cycle repair](https://youtu.be/TOpBcfbAgPg?si=rARS0FTdCOZeze-u) by Brian Haidet, PhD.
-
-- Contrary to Tapsell's Hamiltonian cycle, this approach focuses on applying cuts and splices to the existing Hamiltonian cycle.
-
-- The base of this implementation searches for potential cuts and splices to a Hamiltonian Cycle in order to reach the goal more quickly. This approach is a highly simplified to avoid the NP-hardness of finding Hamiltonian Cycles in grid graphs.
-
-- Various augmentations and special cases are added to account for shortcomings to the base, such as hugging a wall when available.
-
-- Haidet's implementation serves as the primary inspiration of this work.
+	- Contrary to Tapsell's Hamiltonian cycle, this approach focuses on applying cuts and splices to the existing Hamiltonian cycle.
+	- The base of this implementation searches for potential cuts and splices to a Hamiltonian Cycle in order to reach the goal more quickly. This approach is a highly simplified to avoid the NP-hardness of finding Hamiltonian Cycles in grid graphs.
+	- Various augmentations and special cases are added to account for shortcomings to the base, such as hugging a wall when available.
+	- Haidet's implementation serves as the primary inspiration of this work.
 
   
 
 Self research online:
 
 - [Neel Gajjar's A* and Augmented A*](https://github.com/neelgajjar/Snake-game-AI-Solver#:~:text=1.-,Best%20First%20Search,head%20is%20to%20the%20apple)
-
-- Simply implements A* and A* with forward checking, implementation isn't very clear, but as this work uses A* with a style of forward checking, Gajjar's work is included.
-
-  
+- 	Simply implements A* and A* with forward checking, implementation isn't very clear, but as this work uses A* with a style of forward checking, Gajjar's work is included.
 
 - [John Tapsell](https://johnflux.com/2015/05/02/nokia-6110-part-3-algorithms/)
-
-- The objective of this work is to implement a snake AI on the actual screen of a Nokia 6110.
-
-- The planning implementation assumes that the screen size is fixed and subsequently the grid size for the game is always the same. An initial Hamiltonian Curve is given that entirely fills the grid size. The Hamiltonian Cycle is represented as a 1-D array and is used to determine when a "shortcut" can be made. A shortcut in this sense is skipping a portion of the cycle when it can do so safely.
-
-- A drawback of this implementation is that when a shortcut is made, it potentially blocks off a portion of the Hamiltonian cycle which the next goal can assume resulting in the snake having to traverse most of the cycle again regardless.
+	- The objective of this work is to implement a snake AI on the actual screen of a Nokia 6110.
+	- The planning implementation assumes that the screen size is fixed and subsequently the grid size for the game is always the same. An initial Hamiltonian Curve is given that entirely fills the grid size. The Hamiltonian Cycle is represented as a 1-D array and is used to determine when a "shortcut" can be made. A shortcut in this sense is skipping a portion of the cycle when it can do so safely.
+	- A drawback of this implementation is that when a shortcut is made, it potentially blocks off a portion of the Hamiltonian cycle which the next goal can assume resulting in the snake having to traverse most of the cycle again regardless.
 
   
 
@@ -156,17 +132,12 @@ Self research online:
 
 https://arxiv.org/pdf/1805.03192.pdf
 
-  
 
 - Hamilton Paths in Grid Graphs (1982)
-
-- From this work, "Hamilton circuit problem for planar bipartite graphs with maximum degree 3 is NP-Complete"
+- 	From this work, "Hamilton circuit problem for planar bipartite graphs with maximum degree 3 is NP-Complete"
 
 - The planar Hamilton circuit problem is NP-complete (1979)
-
-- Could not access this work from library.tamu.edu yet
-
-  
+	- Could not access this work from library.tamu.edu yet
 
 ## Coverage planning
 
@@ -174,19 +145,11 @@ https://arxiv.org/pdf/1805.03192.pdf
 
 ## Contributions
 
-  
-
 In this paper:
-
 - Definitions such as **Plan Safety**, **Plan Optimality**, Reachability, and Connectivity Constraints for the Snake Game planning problem are defined, including a simple representation for the dynamic obstacle region is shown.
-
 - Impractical but Exact planning algorithms for the problem formulation are shown: Exact Tree Search and Hamilton Cycle Planning.
-
 - The short comings of the static environment optimal discrete planner, A*, is shown for this problem formulation.
-
 - Lastly, a sub-optimal but safe and computationally efficient mixed planning implmentation is given.
-
-  
 
 # Problem Formulation
 
@@ -255,7 +218,6 @@ There are many, many paths that allow for safe planning, but there is one import
   
 
 - Weak $N-N'-$reachable: $\exists \pi \Rightarrow N, N' \in \pi$ -- There exists a valid path from N to N'.
-
 - Strong $N-N'-$reachable: $\exists \pi \Rightarrow N, N' \in \pi \subseteq C^k_{free}$ -- There exists a valid path from N to N' and the entire path is within $C^k_{free}$.
 
   
@@ -275,7 +237,6 @@ Another important consideration for optimality and safety is the connectivity of
 We have two extensions of the reachability measures above:
 
 - Weak connectivity constraint: A set $A \subseteq C$ is weakly connected if $N_i, N_j$ is weak $N_i$-$N_j$-reachable for $i \ne j$.
-
 - Strong connectivity constraint: A set $A \subseteq C$ is strongly connected if $N_i, N_j$ is strong $N_i$-$N_j$ reachable for $i \ne j$.
 
   
@@ -305,9 +266,7 @@ There are two optimal and safe planning formulations which do not violate the co
 The exact search involves the enumeration of a directed Tree-Graph $G(V,E)$ in which every walk along the graph either ends at the goal or at a dead end. The Vertices and Edges sets are enumerated propagating forward from the starting node, the snake head $H^k$. Each edge is from a source vertex representing a path $\pi = \{H^k, N^{k+1}, ..., N\} \in E$ up to node $N=(x,y)$ and directs to a node in its adjacency set $N'=(x',y')$ such that $N' \notin \pi$ which gives us the set of Vertices set is $V=\{(\pi \rightarrow \pi \cup N')| N' \in Adj(N) \cup C_{free}^{N}\setminus \pi\}$ where $C_{free}^{N}$ is the $C_{free}$ when $N$ would be added. The graph $G$ is enumerated until the goal is reached $G^k \in Adj(N) \cup C_{free}^{N} \notin \pi$ or a dead end is encountered $Adj(N) \cup C_{free}^{N} \setminus \pi = \emptyset$ for that branch. Once the graph is enumerated, the lengths of the paths can be counted by the number of nodes in the leaf vertices, and subsequently, all paths that meet the following criteria can be pruned in this order of priority:
 
 1. The path hits a dead end
-
 2. The path bisects $C^k_{free}$
-
 3. The path has a cost that is higher than the minimum after #1 and #2.
 
 If this approach is adopted for every planning cycle, it is clear that $C^k_{free}$ will be connected when each goal is reached, such that when a new goal is sampled randomly from $C^{k+j}_{free}$, it is guaranteed to be reachable by the snake head. Enforcing that $C^{k+j}_{free}$ is fully connected at the end of every path guarantees that Safety is maintained, and the exact tree search pruning ensures that Optimality under Connectivity Constraints is maintained.
@@ -315,6 +274,9 @@ If this approach is adopted for every planning cycle, it is clear that $C^k_{fre
   
 
 ## Hamilton Cycle Planning
+*TODO: This is basically the implementation by Haidet above*
+
+*TODO: Determine if to keep (since the above is in video form and not written media) or just simply cite, determine complexity*
 
 Hamilton Cycle Planning is an interesting method to solve this problem; a closed-loop path is considered which passes once through all of $C^k_{free}$ and $S^k$, in order, without violating connectivity within $S^k$. This path is defined as $\pi^{H\circ,k} = \pi^{\circ,k} \cup S^k$ such that $|\pi^{H\circ, k}| = |C^k|$. This assumes that a Hamilton Cycle is possible in the bipartite grid graph $G$. Any $\pi^{H\circ,k}$ is guaranteed safe and to complete the game, but it would be extremely uninteresting.
 
