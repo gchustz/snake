@@ -78,16 +78,18 @@ def euclidean_distance_squared(pos0, pos1):
     assert len(pos0) == len(
         pos1), f'Length of pos0 {len(pos0)} has to be equal to the length of pos1 {len(pos1)}'
 
-    dist = 0
+    dist_sq = 0.
 
     for p0, p1 in zip(pos0, pos1):
         dp = p0 - p1
-        dist += dp * dp
+        dist_sq += dp * dp
 
-    return dist  # Not worrying about sqrt because this is a 1-1 mapping for distance regardless
+    return dist_sq  # Not worrying about sqrt because this is a 1-1 mapping for distance regardless
 
 
 def get_direction_from_nodes(src, dst):
+    assert src != dst, f'Cannot have {src=} be the same as {dst=} for direction acertation.'
+
     dcol = dst[0] - src[0]
     drow = dst[1] - src[1]
 
@@ -132,9 +134,9 @@ def get_neighbors(src, exclusions, grid_shape):
     # Expand the node
     candidate_surrounding = [
         get_neighbor_at_direction(src, LEFT),
-        get_neighbor_at_direction(src, RIGHT),  # Right
-        get_neighbor_at_direction(src, UP),  # Up
-        get_neighbor_at_direction(src, DOWN)  # Down
+        get_neighbor_at_direction(src, RIGHT),
+        get_neighbor_at_direction(src, UP),
+        get_neighbor_at_direction(src, DOWN)
     ]
 
     surrounding = []
@@ -149,10 +151,10 @@ def is_adjacent(src, node, grid_shape):
     return node in get_neighbors(src, [], grid_shape)
 
 
-def get_min_cost_idx(nodes, costs):
+def get_min_cost_idx(nodes: list, costs: np.array):
     minimum = np.inf
     minimum_idx = 0
-    for idx, pos in zip(range(len(nodes)), nodes):
+    for idx, pos in enumerate(nodes):
         val = costs[pos[0], pos[1]]
         if val < minimum:
             minimum_idx = idx
@@ -207,8 +209,11 @@ class GameRenderer:
     def draw_rectangle(self, coords: list, color: pygame.Color, update: bool = None, shrinkage: int = None):
         if shrinkage is None:
             shrinkage = 0
+
+        square_side_length = self.pixel_density-2*shrinkage
+
         pygame.draw.rect(self.game_window, color, pygame.Rect(
-            *self.convert_to_pixel_space(coords, add=shrinkage), self.pixel_density-2*shrinkage, self.pixel_density-2*shrinkage))
+            *self.convert_to_pixel_space(coords, add=shrinkage), square_side_length, square_side_length))
 
         if update is not None and update:
             self.update()
@@ -218,30 +223,35 @@ class GameRenderer:
 
         direction = get_direction_from_nodes(coords0, coords1)
 
+        square_side_length = self.pixel_density - 2*shrinkage
+        gap_length = 2*shrinkage
+
         if direction == UP:
             pygame.draw.rect(self.game_window, color, pygame.Rect(
-                pixels0[0] + shrinkage, pixels0[1]-shrinkage, self.pixel_density - 2*shrinkage, 2*shrinkage))
+                pixels0[0] + shrinkage, pixels0[1]-shrinkage, square_side_length, gap_length))
 
         elif direction == DOWN:
             pygame.draw.rect(self.game_window, color, pygame.Rect(
-                pixels0[0] + shrinkage, pixels0[1]+self.pixel_density-shrinkage, self.pixel_density - 2 * shrinkage, 2*shrinkage))
+                pixels0[0] + shrinkage, pixels0[1]+self.pixel_density-shrinkage, square_side_length, gap_length))
 
         elif direction == RIGHT:
             pygame.draw.rect(self.game_window, color, pygame.Rect(
-                pixels0[0] + self.pixel_density - shrinkage, pixels0[1] + shrinkage, 2*shrinkage, self.pixel_density - 2*shrinkage))
+                pixels0[0] + self.pixel_density - shrinkage, pixels0[1] + shrinkage, gap_length, square_side_length))
 
         else:
             pygame.draw.rect(self.game_window, color, pygame.Rect(
-                pixels0[0] - shrinkage, pixels0[1]+shrinkage, 2*shrinkage, self.pixel_density-2*shrinkage))
+                pixels0[0] - shrinkage, pixels0[1]+shrinkage, gap_length, square_side_length))
 
     def draw_snake(self, snake, shrinkage: int = None):
 
         if shrinkage is None:
             shrinkage = 1
+
         for node in snake:
             self.draw_rectangle(node, SNAKE_COLOR, shrinkage=shrinkage)
 
         if len(snake) == 1:
+            # Do not try to do more rendering if the snake is only 1 unit long
             return
 
         for node, next_node in zip(snake[:-1], snake[1:]):
@@ -274,6 +284,9 @@ class GameRenderer:
     def draw_snake_head(self, snake, direction):
         head = snake[-1]
         pixels = self.convert_to_pixel_space(head)
+
+        # There are many offsets in the following, the goal is to simply draw the eyes and mouth using circles and rectangles using
+        # simple geometries
         if direction == UP:
             pygame.draw.circle(self.game_window, BLACK, [
                                pixels[0] + self.pixel_density // 3, pixels[1] + self.pixel_density//3], self.pixel_density//10)
@@ -578,8 +591,14 @@ class TwoStagePlanner:
         head = snake[-1]
         tail = snake[0]
 
+        if len(self.current_path) > 0 and not self.replan and self.current_path[0] in snake[1:]:
+            print('Issue with current plan, aborting')
+            self.replan = True
+            print(self.current_path)
+
         # First check if we can reference the current plan
-        if len(self.current_path) > 0 and not self.replan and self.current_path[0] not in snake:
+        # and self.current_path[0] not in snake:
+        if len(self.current_path) > 0 and not self.replan:
             # print('Running old plan')
             renderer.draw_path(self.tail_path, color=LGRAY,
                                shrinkage=3, connect_loop=False)
@@ -608,10 +627,10 @@ class TwoStagePlanner:
             propagated_head = propagated_snake[-1]
             propagated_tail = propagated_snake[0]
             valid, goal2tail_path, goal2tail_queue, goal2tail_expanded, goal2tail_costs = self.sub.plan(
-                propagated_head, propagated_tail, [], propagated_snake[1:])
+                propagated_head, propagated_tail, propagated_snake, propagated_snake[1:])
 
             # Valid double check
-            valid = valid and len(head2goal_path) + len(goal2tail_path) > 1
+            valid = valid and (len(goal2tail_path) > 2 or len(snake) == 1)
 
         if valid:
             self.replan = False
@@ -908,14 +927,13 @@ class SnakeGame:
 
         if self.render_pre_blank:
             self.renderer.blank()
+
         st = time.perf_counter()
+
         self.next_snake_dir = self.controller.get(
             self.snake, self.snake_dir, self.goal, self.renderer)
 
         self.render()
-        #
-        #
-        # print(time.perf_counter() - st)
 
         if self.next_snake_dir is not None and (ANTI_DIRECTIONS[self.next_snake_dir] != self.snake_dir or self.snake_length <= 1):
             self.snake_dir = self.next_snake_dir
@@ -924,6 +942,7 @@ class SnakeGame:
             print(
                 f'could not use requested direction {self.next_snake_dir}, used {self.snake_dir}')
 
+        # propagate snake
         if self.snake_dir == UP:
             self.snake_head[1] -= 1
         elif self.snake_dir == DOWN:
@@ -942,13 +961,12 @@ class SnakeGame:
             if self.score == self.win_score:
                 print('You won')
                 return
+
             self.sample_goal()
             go_cond = False
             self.moves_since_goal = 0
             print('SCORED, score: ', self.score)
-            # print('Score per step: ', self.score / self.seq)
-            # print('Avg Step per Sec ', self.seq /
-            #       (time.perf_counter() - self.start_time))
+
         else:
             self.snake = self.snake[1:]
             # Game Over conditions
@@ -961,14 +979,16 @@ class SnakeGame:
                 print('Ending game since a cycle is detected')
 
         # Add the head to the snake
+        # needs deep copy as updating the snake head will spread to all of the items in the snake otherwise
         self.snake.append(copy.deepcopy(self.snake_head))
 
         # Increment sequence
         self.seq += 1
 
         if go_cond:
+            # Find intersection idx and associated cost
             if self.snake_head in self.snake:
-                for idx, node in zip(range(self.snake_length), self.snake):
+                for idx, node in enumerate(self.snake):
                     if node == self.snake_head:
                         print('Intersected at idx: ', idx)
                         if isinstance(self.controller, AStarPlanner):
@@ -976,9 +996,8 @@ class SnakeGame:
                                   self.controller.costs[self.snake[idx][0], self.snake[idx][1]])
                             print('Sequence number: ', self.controller.seq)
                         break
-            self.game_over()
 
-        # time.sleep(1)
+            self.game_over()
 
     def game_over(self):
         self.not_gameover = False
@@ -994,7 +1013,6 @@ class SnakeGame:
         _ = input('Enter to exit')
 
     def render(self):
-        # Color everything in for the snake
         if not self.render_pre_blank:
             self.renderer.blank()
         self.renderer.draw_rectangle(self.goal, GOAL_COLOR)
