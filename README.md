@@ -4,6 +4,8 @@
 
 ## Implementation Details
 
+**Note: The implementation is in desperate need of a refactor, do not look at it too closely (or at all) right now**
+
 The game is implemented and rendered using PyGame and the algorithm is implented using mostly stock python with the exception of a couple of numpy arrays.
 
 Game settings including which planner to use, grid size, game speed, are set in the bottom of the `snake.py` script.
