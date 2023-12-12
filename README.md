@@ -2,6 +2,8 @@
 
 [ [Planning Paper](./manuscript.pdf) ]
 
+[![Video](./assets/snake.mp4)]
+
 ## Implementation Details
 
 **Note: The implementation is in desperate need of a refactor, do not look at it too closely (or at all) right now**
