@@ -2,6 +2,8 @@
 
 [ [Planning Paper](./manuscript.pdf) ]
 
+[![Video](https://img.youtube.com/vi/efF7AJgWZTQ/maxresdefault.jpg)](https://youtube.com/watch?v=efF7AJgWZTQ)
+
 ## Implementation Details
 
 **Note: The implementation is in desperate need of a refactor, do not look at it too closely (or at all) right now**
