@@ -1,3 +1,6 @@
+# NOTE to READER: the implementation is in desperate need of a refactor, if you want to change settings for running,
+# flick your scroll wheel as fast as possible to the bottom.
+
 # importing libraries
 import pygame
 import time
